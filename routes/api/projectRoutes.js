@@ -30,3 +30,24 @@ router.get(
         res.json(projects);
     })
 );
+
+// Get single project by ID with ownership check
+router.get(
+    '/:id',
+    protect,
+    asyncHandler(async (req, res) => {
+        const project = await Project.findById(req.params.id);
+
+        if (!project) {
+            res.status(404);
+            throw new Error('Project not found');
+        }
+
+        if (project.user.toString() !== req.user._id.toString()) {
+            res.status(403);
+            throw new Error('Not authorized to access this project');
+        }
+
+        res.json(project);
+    })
+);
