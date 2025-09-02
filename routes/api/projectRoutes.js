@@ -98,3 +98,5 @@ router.delete(
         res.json({ message: 'Project removed' });
     })
 );
+
+module.exports = router;
