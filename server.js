@@ -22,3 +22,10 @@ app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS)
 app.get('/', (req, res) => {
     res.send('TaskMaster API is running...');
 });
+
+const PORT = process.env.PORT || 5000;
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
