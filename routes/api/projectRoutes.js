@@ -76,3 +76,25 @@ router.put(
         res.json(updatedProject);
     })
 );
+
+// Delete project by ID
+router.delete(
+    '/:id',
+    protect,
+    asyncHandler(async (req, res) => {
+        const project = await Project.findById(req.params.id);
+
+        if (!project) {
+            res.status(404);
+            throw new Error('Project not found');
+        }
+
+        if (project.user.toString() !== req.user._id.toString()) {
+            res.status(403);
+            throw new Error('Not authorized to delete this project');
+        }
+
+        await project.remove();
+        res.json({ message: 'Project removed' });
+    })
+);
