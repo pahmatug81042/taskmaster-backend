@@ -17,3 +17,8 @@ const app = express();
 // Middleware
 app.use(express.json()); // Body parser middleware to parse JSON requests
 app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS)
+
+// Placeholder route for testing
+app.get('/', (req, res) => {
+    res.send('TaskMaster API is running...');
+});
