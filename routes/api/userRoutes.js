@@ -34,8 +34,27 @@ router.post(
     })
 );
 
-router.post('/login', (req, res) => {
-    res.send('Login user');
-});
+// POST /api/users/login
+router.post(
+    '/login',
+    asyncHandler(async (req, res) => {
+        const { email, pasword } = req.body;
+
+        // Find user by email
+        const user = await User.findOne({ email });
+
+        if (user && (await user.matchPassword(password))) {
+            res.json({
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                token: generateToken(user._id),
+            });
+        } else {
+            res.status(401);
+            throw new Error('Invalid email or password');
+        }
+    })
+);
 
 module.exports = router;
