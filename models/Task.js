@@ -9,9 +9,15 @@ const taskSchema = new mongoose.Schema(
             enum: ['To Do', 'In Progress', 'Done'],
             default: 'To Do',
         },
+        dueDate: { type: Date },
         project: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Project',
+            required: true,
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
             required: true,
         },
     },
