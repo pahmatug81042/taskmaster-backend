@@ -10,3 +10,10 @@ dotenv.config();
 
 // Connect to MongoDB
 connectDB();
+
+// Create Express application instance
+const app = express();
+
+// Middleware
+app.use(express.json()); // Body parser middleware to parse JSON requests
+app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS)
