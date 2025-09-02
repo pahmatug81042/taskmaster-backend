@@ -20,3 +20,13 @@ router.post(
         res.status(201).json(project);
     })
 );
+
+// Get all projects owned by the logged-in user
+router.get(
+    '/',
+    protect,
+    asyncHandler(async (req, res) => {
+        const projects = await Project.find({ user: req.user._id });
+        res.json(projects);
+    })
+);
