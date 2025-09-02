@@ -9,6 +9,11 @@ const taskSchema = new mongoose.Schema(
             enum: ['To Do', 'In Progress', 'Done'],
             default: 'To Do',
         },
+        project: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Project',
+            required: true,
+        },
     },
     { timestamps: true }
 );
