@@ -7,3 +7,6 @@ const cors = require('cors'); // Import CORS middleware
 
 // Load environment variables from the .env file
 dotenv.config();
+
+// Connect to MongoDB
+connectDB();
