@@ -10,3 +10,28 @@ const checkProjectOwnership = async (projectId, userId) => {
     }
     return project;
 };
+
+// @desc    Create a task under a project
+// @route   POST /api/projects/:projectId/tasks
+// @access  Private
+const createTask = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const { name, status, dueDate } = req.body;
+
+        // Verify ownership
+        await checkProjectOwnership(projectId, req.user._id);
+
+        const task = await Task.create({
+            name,
+            status,
+            dueDate,
+            project: projectId,
+            user: req.user._id,
+        });
+
+        res.status(201).json(task);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
