@@ -5,6 +5,9 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db'); // Import the DB connection
 const cors = require('cors'); // Import CORS middleware
 
+const taskRoutes = require('./routes/api/taskRoutes');
+const projectRoutes = require('./routes/api/projectRoutes');
+
 // Load environment variables from the .env file
 dotenv.config();
 
@@ -17,6 +20,10 @@ const app = express();
 // Middleware
 app.use(express.json()); // Body parser middleware to parse JSON requests
 app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS)
+
+// Mount routes
+app.use('/api/projects', projectRoutes);
+app.use('/api/projects/:projectId/tasks', taskRoutes);
 
 // Placeholder route for testing
 app.get('/', (req, res) => {
