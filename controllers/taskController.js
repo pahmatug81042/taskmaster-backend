@@ -72,3 +72,25 @@ const updateTask = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+// @desc    Delete a task
+// @route   DELETE /api/projects/:projectId/tasks/:taskId
+// @access  Private
+const deleteTask = async (req, res) => {
+    try {
+        const { projectId, taskId } = req.params;
+
+        // Verify ownership
+        await checkProjectOwnership(projectId, req.user._id);
+
+        const task = await Task.findById(taskId);
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        await task.deleteOne();
+        res.json({ message: 'Task removed' });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
