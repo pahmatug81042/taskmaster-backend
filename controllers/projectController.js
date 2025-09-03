@@ -15,3 +15,15 @@ const createProject = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+// @desc    Get all projects for authenticated user
+// @route   GET /api/projects
+// @access  Private
+const getProjects = async (req, res) => {
+    try {
+        const projects = await Project.find({ user: req.user._id });
+        res.json(projects);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
