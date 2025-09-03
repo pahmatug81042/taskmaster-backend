@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 // @route   POST /api/users/register
 // @access  Public
 const registerUser = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
     try {
         const existingUser = await User.findOne({ email });
@@ -13,8 +13,7 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await User.create({ name, email, password: hashedPassword });
+        const user = await User.create({ username, email, password });
 
         res.status(201).json({ message: 'User registered successfully', user });
     } catch (error) {

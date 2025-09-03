@@ -6,13 +6,13 @@ const {
     updateProject,
     deleteProject,
 } = require('../../controllers/project/projectController');
-const auth = require('../../middleware/authMiddleware');
+const protect = require('../../middleware/authMiddleware');
 const router = express.Router();
 
-router.post('/', auth, createProject);
-router.get('/', auth, getProjects);
-router.get('/:id', auth, getProjectById);
-router.put('/:id', auth, updateProject);
-router.delete('/:id', auth, deleteProject);
+router.post('/', protect, createProject);
+router.get('/', protect, getProjects);
+router.get('/:id', protect, getProjectById);
+router.put('/:id', protect, updateProject);
+router.delete('/:id', protect, deleteProject);
 
 module.exports = router;
