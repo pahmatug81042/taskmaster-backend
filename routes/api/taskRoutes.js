@@ -4,7 +4,7 @@ const {
     getTasks,
     updateTask,
     deleteTask,
-} = require('../../controllers/taskController');
+} = require('../../controllers/task/taskController');
 const { protect } = require('../../middleware/authMiddleware');
 
 const router = express.Router({ mergeParams: true });

@@ -1,5 +1,5 @@
-const Task = require('../models/Task');
-const Project = require('../models/Project');
+const Task = require('../../models/Task');
+const Project = require('../../models/Project');
 
 // Helper: Check if user owns the project
 const checkProjectOwnership = async (projectId, userId) => {
