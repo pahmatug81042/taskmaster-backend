@@ -25,6 +25,7 @@ app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS)
 // Mount routes
 app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:projectId/tasks', taskRoutes);
+app.use('/api/users', userRoutes);
 
 // Placeholder route for testing
 app.get('/', (req, res) => {
