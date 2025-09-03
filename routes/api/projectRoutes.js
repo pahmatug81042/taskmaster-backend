@@ -5,7 +5,7 @@ const {
     getProjectById,
     updateProject,
     deleteProject,
-} = require('../../controllers/projectController');
+} = require('../../controllers/project/projectController');
 const auth = require('../../middleware/authMiddleware');
 const router = express.Router();
 
