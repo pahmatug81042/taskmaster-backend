@@ -50,3 +50,25 @@ const getTasks = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+// @desc    Update a task
+// @route   PUT /api/projects/:projectId/tasks/:taskId
+// @access  Private
+const updateTask = async (req, res) => {
+    try {
+        const { projectId, taskId } = req.params;
+
+        // Vreify ownership
+        await checkProjectOwnership(projectId, req.user._id);
+
+        let task = await Task.findById(taskId);
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        task = await Task.findByIdAndUpdate(taskId, req.body, { new: true });
+        res.json(task);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
