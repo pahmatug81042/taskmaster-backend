@@ -35,3 +35,18 @@ const createTask = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+// @desc    Get tasks for a project
+// @route   GET /api/projects/:projectId/tasks
+// @access  Private
+const getTasks = async (req, res) => {
+    try {
+        // Verify ownership
+        await checkProjectOwnership(projectId, req.user._id);
+
+        const tasks = await Task.find({ project: projectId });
+        res.json(tasks);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
