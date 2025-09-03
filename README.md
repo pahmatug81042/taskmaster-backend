@@ -1,11 +1,11 @@
-# 📌 TaskMaster API  
+# TaskMaster API  
 
 TaskMaster is a **RESTful API** powering the productivity platform **TaskMaster**.  
 It handles **user authentication**, **project management**, and **task tracking** with strict **ownership-based authorization** to ensure data privacy and security.  
 
 ---
 
-## 🚀 Features  
+## Features  
 
 - **User Authentication & Authorization**
   - Register and login with secure password hashing (`bcrypt`)
@@ -22,20 +22,20 @@ It handles **user authentication**, **project management**, and **task tracking*
 
 ---
 
-## 📂 API Endpoints  
+## API Endpoints  
 
-### 🔑 Authentication  
+### Authentication  
 - **POST** `/api/users/register` → Register a new user  
 - **POST** `/api/users/login` → Authenticate user and return JWT  
 
-### 📁 Projects  
+### Projects  
 - **POST** `/api/projects` → Create a new project  
 - **GET** `/api/projects` → Get all projects for logged-in user  
 - **GET** `/api/projects/:id` → Get single project by ID (ownership required)  
 - **PUT** `/api/projects/:id` → Update project (ownership required)  
 - **DELETE** `/api/projects/:id` → Delete project (ownership required)  
 
-### ✅ Tasks (nested under projects)  
+### Tasks (nested under projects)  
 - **POST** `/api/projects/:projectId/tasks` → Create a task inside a project (ownership required)  
 - **GET** `/api/projects/:projectId/tasks` → Get all tasks in a project (ownership required)  
 - **PUT** `/api/tasks/:taskId` → Update a task (ownership required via parent project)  
@@ -43,7 +43,7 @@ It handles **user authentication**, **project management**, and **task tracking*
 
 ---
 
-## ⚡ Challenges & Solutions  
+## Challenges & Solutions  
 
 ### 1. **Password Security**
 - **Challenge:** Ensuring user passwords were never stored in plain text.  
@@ -69,7 +69,7 @@ It handles **user authentication**, **project management**, and **task tracking*
 
 ---
 
-## 🏆 Reflection  
+## Reflection  
 
 Building TaskMaster required synthesizing multiple backend skills:
 - **Express routing** with modular controllers for clean separation of concerns  
@@ -80,7 +80,7 @@ This project emphasized **clean architecture, DRY principles, and secure coding 
 
 ---
 
-## ⚙️ High-Level Project Setup  
+## High-Level Project Setup  
 
 1. **Clone the repository**  
    ```bash
