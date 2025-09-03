@@ -7,6 +7,7 @@ const cors = require('cors'); // Import CORS middleware
 
 const taskRoutes = require('./routes/api/taskRoutes');
 const projectRoutes = require('./routes/api/projectRoutes');
+const userRoutes = require('./routes/api/userRoutes');
 
 // Load environment variables from the .env file
 dotenv.config();
