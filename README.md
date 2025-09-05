@@ -10,6 +10,8 @@ It handles **user authentication**, **project management**, and **task tracking*
 - **User Authentication & Authorization**
   - Register and login with secure password hashing (`bcrypt`)
   - JWT-based authentication for session management  
+  - **New users automatically receive dummy projects and tasks** to populate their dashboard  
+
 - **Project Management**
   - CRUD operations on projects
   - Ownership rules: only project owners can access or modify their projects  
@@ -25,7 +27,7 @@ It handles **user authentication**, **project management**, and **task tracking*
 ## API Endpoints  
 
 ### Authentication  
-- **POST** `/api/users/register` → Register a new user  
+- **POST** `/api/users/register` → Register a new user (auto-seeds dummy projects and tasks)  
 - **POST** `/api/users/login` → Authenticate user and return JWT  
 
 ### Projects  
@@ -66,6 +68,13 @@ It handles **user authentication**, **project management**, and **task tracking*
 ### 5. **Error Handling**
 - **Challenge:** Providing consistent, secure error messages without exposing sensitive details.  
 - **Solution:** Centralized error handling with proper **status codes** (`400`, `401`, `403`, `404`). Returned helpful but non-sensitive messages.  
+
+### 6. **Seeding Dummy Data**
+- **Challenge:** Ensuring new users have content to interact with immediately after registration.  
+- **Solution:** Added a **dummy data seeding mechanism** in the registration controller:
+  - Each new user receives **two default projects**.
+  - Each project is pre-populated with **tasks**.
+  - Enables the dashboard to show projects and tasks on first login.  
 
 ---
 
