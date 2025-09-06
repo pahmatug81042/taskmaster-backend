@@ -1,42 +1,40 @@
-// Dummy projects
-const dummyProjects = [
-    {
-        name: 'Project Alpha',
-        description: 'First project'
-    },
-];
-
-// Dummy tasks for each project
-// We'll map these when seeding to the correct project IDs
-const dummyTasks = {
-    'Project Alpha': [
+module.exports = {
+    projects: [
         {
-            title: 'Alpha Task 1',
-            description: 'First task of Project Alpha',
-            status: 'To Do',
-            dueDate: new Date()
+            name: "Website Redesign",
+            description: "Update UI/UX and modernize branding",
+            tasks: [
+                {
+                    title: "Design homepage mockup",
+                    description: "Create Figma design for homepage",
+                    status: "To Do",
+                    dueDate: new Date(),
+                },
+                {
+                    title: "Update color palette",
+                    description: "Align with new branding guidelines",
+                    status: "In Progress",
+                    dueDate: new Date(),
+                },
+            ],
         },
         {
-            title: 'Alpha Task 2',
-            description: 'Second task of Project Alpha',
-            status: 'In Progress',
-            dueDate: new Date()
-        }
+            name: "Mobile App Launch",
+            description: "Prepare and launch v1 of the app",
+            tasks: [
+                {
+                    title: "Build onboarding flow",
+                    description: "First-time user onboarding screens",
+                    status: "To Do",
+                    dueDate: new Date(),
+                },
+                {
+                    title: "App Store submission",
+                    description: "Submit to iOS App Store",
+                    status: "Done",
+                    dueDate: new Date(),
+                },
+            ],
+        },
     ],
-    'Project Beta': [
-        {
-            title: 'Beta Task 1',
-            description: 'First task of Project Beta',
-            status: 'To Do',
-            dueDate: new Date()
-        },
-        {
-            title: 'Beta Task 1',
-            description: 'Second task of Project Beta',
-            status: 'Done',
-            dueDate: new Date()
-        }
-    ]
 };
-
-module.exports = { dummyProjects, dummyTasks };
