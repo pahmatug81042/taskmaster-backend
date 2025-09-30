@@ -11,14 +11,20 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "http://localhost:5173" }));  // adjust to frontend
+app.use(
+    cors({
+        origin: "http://localhost:5173", // adjust for frontend deployment
+        credentials: true, // allow cookies/JWT headers if needed
+    })
+);
 app.use(helmet());
 app.use(express.json());
 
 // Routes
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/projects", require("./routes/projectRoutes"));
-app.use("/api/tasks", require("./routes/taskRoutes"));
+// Nested tasks under projects
+app.use("/api/projects/:projectId/tasks", require("./routes/taskRoutes"));
 
 // Error Handling
 app.use(notFound);
