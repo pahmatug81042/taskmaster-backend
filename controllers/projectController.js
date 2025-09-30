@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Project = require("../models/Project");
 
-// @desc    Create a new project
+// @desc    Create new project
 // @route   POST /api/projects
 // @access  Private
 const createProject = asyncHandler(async (req, res) => {
@@ -10,48 +10,46 @@ const createProject = asyncHandler(async (req, res) => {
     const project = await Project.create({
         name,
         description,
-        user: req.user._id, // ownership from auth middleware
+        user: req.user._id,
     });
 
     res.status(201).json(project);
 });
 
-// @desc    Get all projects for logged-in user
-// @route   Get /api/projects
+// @desc    Get all projects for the logged-in user
+// @route   GET /api/projects
 // @access  Private
-const getProjects = asyncHandler(async(req, res) => {
+const getProjects = asyncHandler(async (req, res) => {
     const projects = await Project.find({ user: req.user._id });
     res.json(projects);
 });
 
-// @desc    Get single project by ID
-// @route   GET /api/projects/:id
-// @access  Private (ownership enforced)
-const getProjectById = asyncHandler(async (req, res) => {
-    const project = req.project; // set by authorizeProject middleware
-    res.json(project);
+// @desc    Get a single project
+// @route   GET /api/projects/:projectId
+// @access  Private
+const getProjectById = asyncHandler (async (req, res) => {
+    // Project already validated by authorizeProject middleware
+    res.json(req.project);
 });
 
 // @desc    Update a project
-// @route   PUT /api/projects/:id
-// @access  Private (ownership enforced)
+// @route   PUT /api/projects/:projectId
+// @access  Private
 const updateProject = asyncHandler(async (req, res) => {
-    const project = req.project; // set by authorizeProject middleware
     const { name, description } = req.body;
 
-    project.name = name || project.name;
-    project.description = description || project.description;
+    req.project.name = name || req.project.name;
+    req.project.description = description || req.project.description;
 
-    const updatedProject = await project.save();
+    const updatedProject = await req.project.description;
     res.json(updatedProject);
 });
 
 // @desc    Delete a project
-// @route   DELETE /api/projects/:id
-// @access  Private (ownership enforced)
+// @route   DELETE /api/projects/:projectId
+// @access  Private
 const deleteProject = asyncHandler(async (req, res) => {
-    const project = req.project; // set by authorizeProject middleware
-    await project.deleteOne();
+    await req.project.deleteOne();
     res.json({ message: "Project removed successfully!" });
 });
 
