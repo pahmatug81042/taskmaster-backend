@@ -18,7 +18,7 @@ router.use(protect);
 // Nested routes under /api/projects/:projectId/tasks
 router
     .route("/")
-    post(authorizeProject, createTask)
+    .post(authorizeProject, createTask)
     .get(authorizeProject, getTasks);
 
 router
