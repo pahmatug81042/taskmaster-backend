@@ -1,31 +1,18 @@
 const asyncHandler = require("express-async-handler");
 const Task = require("../models/Task");
-const Project = require("../models/Project");
 
 // @desc    Create a new task under a project
 // @route   POST /api/projects/:projectId/tasks
 // @access  Private
 const createTask = asyncHandler(async (req, res) => {
-    const { projectId } = req.params;
     const { title, description, status, priority } = req.body;
-
-    // Verify ownership of project
-    const project = await Project.findById(projectId);
-    if (!project) {
-        res.status(404);
-        throw new Error("Project not found");
-    }
-    if (project.user.toString() !== req.user._id.toString()) {
-        res.status(403);
-        throw new Error("Not authorized to add tasks to this project");
-    }
 
     const task = await Task.create({
         title,
         description,
         status,
         priority,
-        project: projectId,
+        project: req.project._id, // project already authorized by middleware
     });
 
     res.status(201).json(task);
@@ -35,68 +22,33 @@ const createTask = asyncHandler(async (req, res) => {
 // @route   GET /api/projects/:projectId/tasks
 // @access  Private
 const getTasks = asyncHandler(async (req, res) => {
-    const { projectId } = req.params;
-
-    // Verify ownership of project
-    const project = await Project.findById(projectId);
-    if (!project) {
-        res.status(404);
-        throw new Error("Project not found");
-    }
-    if (project.user.toString() !== req.user._id.toString()) {
-        res.status(403);
-        throw new Error("Not authorized to view tasks of this project");
-    }
-
-    const tasks = await Task.find({ project: projectId });
+    const tasks = await Task.find({ project: req.project._id });
     res.json(tasks);
 });
 
 // @desc    Get single task by ID
 // @route   GET /api/projects/:projectId/tasks/:taskId
 // @access  Private
-const getTaskById = asyncHandler (async (req, res) => {
-    const { projectId, taskId } = req.params;
+const getTaskById = asyncHandler(asyncHandler(async (req, res) => {
+    const { taskId } = req.params;
 
-    // Verify ownership of project
-    const project = await Project.findById(projectId);
-    if (!project) {
-        res.status(404);
-        throw new Error("Project not found");
-    }
-    if (project.user.toString() !== req.user._id.toString()) {
-        res.status(403);
-        throw new Error("Not authorized to access tasks of this project");
-    }
-
-    const task = await Task.findOne({ _id: taskId, project: projectId });
+    const task = await Task.findOne({ _id: taskId, project: req.project._id });
     if (!task) {
         res.status(404);
         throw new Error("Task not found");
     }
 
     res.json(task);
-});
+}));
 
 // @desc    Update a task
 // @route   PUT /api/projects/:projectId/tasks/:taskId
 // @access  Private
 const updateTask = asyncHandler(async (req, res) => {
-    const { projectId, taskId } = req.params;
+    const { taskId } = req.params;
     const { title, description, status, priority } = req.body;
-    
-    // Verify ownership of project
-    const project = await Project.findById(projectId);
-    if (!project) {
-        res.status(404);
-        throw new Error("Project not found");
-    }
-    if (project.user.toString() !== req.user._id.toString()) {
-        res.status(403);
-        throw new Error("Not authorized to update tasks of this project");
-    }
 
-    const task = await Task.findOne({ _id: taskId, project: projectId });
+    const task = await Task.findOne({ _id: taskId, project: req.project._id });
     if (!task) {
         res.status(404);
         throw new Error("Task not found");
@@ -115,20 +67,9 @@ const updateTask = asyncHandler(async (req, res) => {
 // @route   DELETE /api/projects/:projectId/tasks/:taskId
 // @access  Private
 const deleteTask = asyncHandler(async (req, res) => {
-    const { projectId, taskId } = req.params;
+    const { taskId } = req.params;
 
-    // Verify ownership of a project
-    const project = await Project.findById(projectId);
-    if (!project) {
-        res.status(404);
-        throw new Error("Project not found");
-    }
-    if (project.user.toString() !== req.user._id.toString()) {
-        res.status(403);
-        throw new Error("Not authorized to delete tasks of this project");
-    }
-
-    const task = await Task.findOne({ _id: taskId, project: projectId });
+    const task = await Task.findOne({ _id: taskId, project: req.project._id });
     if (!task) {
         res.status(404);
         throw new Error("Task not found");
