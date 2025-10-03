@@ -12,7 +12,7 @@ const authorizeTask = require("../middleware/authorizeTask");
 
 const router = express.Router({ mergeParams: true });
 
-// All task routes require authentication
+// All task routes require authentication for security purposes
 router.use(protect);
 
 // Routes under /api/projects/:projectId/tasks
