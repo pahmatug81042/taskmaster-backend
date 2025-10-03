@@ -14,19 +14,21 @@ const generateToken = (id) => {
 const registerUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
 
-    // Checks if user already exists
+    // Validate input
+    if (!username || !email || !password) {
+        res.status(400);
+        throw new Error("Please provide username, email, and password");
+    }
+
+    // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
         res.status(400);
         throw new Error("User already exists with this email");
     }
 
-    // Create new user (no token generated)
-    const user = await User.create({
-        username,
-        email,
-        password, // Password hashed via pre-save hook
-    });
+    // Create new user (password hashed via pre-save hook)
+    const user = await User.create({ username, email, password });
 
     if (user) {
         res.status(201).json({
@@ -46,7 +48,14 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
+    // Validate input
+    if (!email || !password) {
+        res.status(400);
+        throw new Error("Please provide email and password");
+    }
+
     const user = await User.findOne({ email });
+
     if (user && (await user.matchPassword(password))) {
         res.json({
             _id: user._id,
