@@ -7,6 +7,11 @@ const Project = require("../models/Project");
 const createProject = asyncHandler(async (req, res) => {
     const { name, description } = req.body;
 
+    if (!name) {
+        res.status(400);
+        throw new Error("Project name is required");
+    }
+
     const project = await Project.create({
         name,
         description,
@@ -27,7 +32,7 @@ const getProjects = asyncHandler(async (req, res) => {
 // @desc    Get a single project
 // @route   GET /api/projects/:projectId
 // @access  Private
-const getProjectById = asyncHandler (async (req, res) => {
+const getProjectById = asyncHandler(async (req, res) => {
     // Project already validated by authorizeProject middleware
     res.json(req.project);
 });
@@ -41,7 +46,7 @@ const updateProject = asyncHandler(async (req, res) => {
     req.project.name = name || req.project.name;
     req.project.description = description || req.project.description;
 
-    const updatedProject = await req.project.description;
+    const updatedProject = await req.project.save();
     res.json(updatedProject);
 });
 
