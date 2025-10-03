@@ -8,23 +8,24 @@ const {
 } = require("../controllers/taskController");
 const { protect } = require("../middleware/authMiddleware");
 const authorizeProject = require("../middleware/authorizeProject");
-const { post } = require("./projectRoutes");
+const authorizeTask = require("../middleware/authorizeTask");
 
 const router = express.Router({ mergeParams: true });
 
 // All task routes require authentication
 router.use(protect);
 
-// Nested routes under /api/projects/:projectId/tasks
+// Routes under /api/projects/:projectId/tasks
 router
     .route("/")
-    .post(authorizeProject, createTask)
+    .post(authorizeProject, createTask) // project ownership checked
     .get(authorizeProject, getTasks);
 
+// Routes for single task (must authorize project first, then the task)
 router
     .route("/:taskId")
-    .get(authorizeProject, getTaskById)
-    .put(authorizeProject, updateTask)
-    .delete(authorizeProject, deleteTask);
+    .get(authorizeProject, authorizeTask, getTaskById)
+    .put(authorizeProject, authorizeTask, updateTask)
+    .delete(authorizeProject, authorizeTask, deleteTask);
 
 module.exports = router;

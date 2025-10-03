@@ -17,10 +17,10 @@ router.use(protect);
 // Create new project
 router.post("/", createProject);
 
-// Get all projects for logged-in users
+// Get all projects for logged-in user
 router.get("/", getProjects);
 
-// Get, update, delete project by ID (ownershi[ enforced by middleware)
+// Get, update, delete project by ID (ownership enforced by middleware)
 router
     .route("/:projectId")
     .get(authorizeProject, getProjectById)
