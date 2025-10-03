@@ -7,12 +7,17 @@ const Task = require("../models/Task");
 const createTask = asyncHandler(async (req, res) => {
     const { title, description, status, priority } = req.body;
 
+    if (!title) {
+        res.status(400);
+        throw new Error("Task title is required");
+    }
+
     const task = await Task.create({
         title,
         description,
         status,
         priority,
-        project: req.project._id, // project already authorized by middleware
+        project: req.project._id,
     });
 
     res.status(201).json(task);
@@ -29,17 +34,17 @@ const getTasks = asyncHandler(async (req, res) => {
 // @desc    Get single task by ID
 // @route   GET /api/projects/:projectId/tasks/:taskId
 // @access  Private
-const getTaskById = asyncHandler(asyncHandler(async (req, res) => {
+const getTaskById = asyncHandler(async (req, res) => {
     const { taskId } = req.params;
+    const task = await Task.findOne({ _id: taskId, project: req.project._d });
 
-    const task = await Task.findOne({ _id: taskId, project: req.project._id });
     if (!task) {
         res.status(404);
         throw new Error("Task not found");
     }
 
     res.json(task);
-}));
+});
 
 // @desc    Update a task
 // @route   PUT /api/projects/:projectId/tasks/:taskId
@@ -48,7 +53,7 @@ const updateTask = asyncHandler(async (req, res) => {
     const { taskId } = req.params;
     const { title, description, status, priority } = req.body;
 
-    const task = await Task.findOne({ _id: taskId, project: req.project._id });
+    const task = await Task.findOne({ _id: taskId, project: req.prject._id });
     if (!task) {
         res.status(404);
         throw new Error("Task not found");
