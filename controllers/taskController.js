@@ -7,17 +7,12 @@ const Task = require("../models/Task");
 const createTask = asyncHandler(async (req, res) => {
     const { title, description, status, priority } = req.body;
 
-    if (!title) {
-        res.status(400);
-        throw new Error("Task title is required");
-    }
-
     const task = await Task.create({
         title,
         description,
         status,
         priority,
-        project: req.project._id,
+        project: req.project._id, // Project already authorized by middleware
     });
 
     res.status(201).json(task);
@@ -35,36 +30,23 @@ const getTasks = asyncHandler(async (req, res) => {
 // @route   GET /api/projects/:projectId/tasks/:taskId
 // @access  Private
 const getTaskById = asyncHandler(async (req, res) => {
-    const { taskId } = req.params;
-    const task = await Task.findOne({ _id: taskId, project: req.project._d });
-
-    if (!task) {
-        res.status(404);
-        throw new Error("Task not found");
-    }
-
-    res.json(task);
+    // req.task is set by authorizeTask middleware
+    res.json(req.task);
 });
 
 // @desc    Update a task
 // @route   PUT /api/projects/:projectId/tasks/:taskId
 // @access  Private
 const updateTask = asyncHandler(async (req, res) => {
-    const { taskId } = req.params;
     const { title, description, status, priority } = req.body;
 
-    const task = await Task.findOne({ _id: taskId, project: req.prject._id });
-    if (!task) {
-        res.status(404);
-        throw new Error("Task not found");
-    }
+    // req.task is already authorized
+    req.task.title = title || req.task.title;
+    req.task.description = description || req.task.description;
+    req.task.status = status || req.task.status;
+    req.task.priority = priority || req.task.priority;
 
-    task.title = title || task.title;
-    task.description = description || task.description;
-    task.status = status || task.status;
-    task.priority = priority || task.priority;
-
-    const updatedTask = await task.save();
+    const updatedTask = await req.task.save();
     res.json(updatedTask);
 });
 
@@ -72,15 +54,7 @@ const updateTask = asyncHandler(async (req, res) => {
 // @route   DELETE /api/projects/:projectId/tasks/:taskId
 // @access  Private
 const deleteTask = asyncHandler(async (req, res) => {
-    const { taskId } = req.params;
-
-    const task = await Task.findOne({ _id: taskId, project: req.project._id });
-    if (!task) {
-        res.status(404);
-        throw new Error("Task not found");
-    }
-
-    await task.deleteOne();
+    await req.task.deleteOne();
     res.json({ message: "Task removed successfully!" });
 });
 
