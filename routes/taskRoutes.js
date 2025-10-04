@@ -9,23 +9,42 @@ const {
 const { protect } = require("../middleware/authMiddleware");
 const authorizeProject = require("../middleware/authorizeProject");
 const authorizeTask = require("../middleware/authorizeTask");
+const validateObjectId = require("../utils/validateObjectId");
 
 const router = express.Router({ mergeParams: true });
 
-// All task routes require authentication for security purposes
+// All task routes require authentication
 router.use(protect);
 
 // Routes under /api/projects/:projectId/tasks
 router
     .route("/")
-    .post(authorizeProject, createTask) // project ownership checked
-    .get(authorizeProject, getTasks);
+    .post(validateObjectId("projectId"), authorizeProject, createTask)
+    .get(validateObjectId("projectId"), authorizeProject, getTasks);
 
-// Routes for single task (must authorize project first, then the task)
+// Routes for single task
 router
     .route("/:taskId")
-    .get(authorizeProject, authorizeTask, getTaskById)
-    .put(authorizeProject, authorizeTask, updateTask)
-    .delete(authorizeProject, authorizeTask, deleteTask);
+    .get(
+        validateObjectId("projectId"),
+        validateObjectId("taskId"),
+        authorizeProject,
+        authorizeTask,
+        getTaskById
+    )
+    .put(
+        validateObjectId("projectId"),
+        validateObjectId("taskId"),
+        authorizeProject,
+        authorizeTask,
+        updateTask
+    )
+    .delete(
+        validateObjectId("projectId"),
+        validateObjectId("taskId"),
+        authorizeProject,
+        authorizeTask,
+        deleteTask
+    );
 
 module.exports = router;
