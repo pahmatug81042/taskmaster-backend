@@ -3,128 +3,130 @@
 This is the **backend service** for the **TaskMaster** application, developed during **Temple University OwlHacks 2025**.  
 It provides a **secure REST API** for managing users, projects, and tasks, built with **Node.js, Express, and MongoDB**.
 
-The backend strictly adheres to **OWASP Top 10 security principles**, ensuring protection against common vulnerabilities like XSS, injection, broken authentication, and insecure deserialization.
+The backend strictly adheres to **OWASP Top 10 (2024) security principles**, ensuring protection against common vulnerabilities like XSS, injection, broken authentication, sensitive data exposure, and insecure deserialization.
+
+---
+
+## Security Features
+
+### Authentication & Session Security
+- User registration and login with **bcrypt password hashing**.
+- **JWT-based authentication** with short-lived access tokens (`1h`) and strong secrets.
+- Tokens validated in `authMiddleware.js` before protected resources are accessed.
+- Ownership enforced with `authorizeProject.js` and `authorizeTask.js`.
+
+### Input Validation & Sanitization
+- Global enforcement of `Content-Type: application/json`.
+- `express-mongo-sanitize` prevents MongoDB operator injection (`$gt`, `$set`, etc.).
+- `validator` ensures proper email format, username constraints, and ID validation.
+- `sanitize-html` used for sanitizing free-text fields if/when enabled.
+- Centralized request validation with `validationMiddleware.js`.
+
+### Security Middleware
+- **Helmet** with strict Content Security Policy (CSP) headers.
+- **CORS policy** restricted to trusted frontend origin(s).
+- **express-rate-limit** applied to authentication endpoints (`/api/users/login` and `/api/users/register`) to mitigate brute-force attacks.
+
+### Error Handling
+- Centralized `errorMiddleware.js`:
+  - Sanitizes error messages in production (no stack leaks).
+  - Normalizes common errors (invalid ObjectId, duplicate keys, validation errors).
+  - Returns consistent JSON error format.
+- `notFound` handler for unknown routes.
+
+### ID Validation & Ownership
+- `validateObjectId.js` utility ensures only valid MongoDB ObjectIds are processed.
+- Validation enforced **both at the route level and middleware level** (inside `authorizeProject` and `authorizeTask`) for defense-in-depth.
 
 ---
 
 ## Features
 
-### Authentication & Security
-- User registration and login with **bcrypt password hashing** and **JWT-based authentication**.
-- Tokens are issued **only on login** for better session management.
-- Middleware for route protection (`authMiddleware.js`) ensures only authenticated users can access protected resources.
-- **Helmet** used for setting secure HTTP headers.
-- **CORS policy** applied to allow only trusted frontend origins.
-- Input sanitization and validation with **express-validator** and `validationMiddleware.js`.
-- Global error handling and 404 response handling (`errorMiddleware.js`).
-- Protection against **script injection (XSS)** and **NoSQL injection**.
-
 ### User Management
-- Register a new user with validation for username, email, and strong password.
-- Login with email and password to receive a JWT for session handling.
-- User password is stored securely with **bcrypt salted hashing**.
+- Register new users with input validation.
+- Login returns JWT token for authentication.
+- Passwords stored securely with salted bcrypt hashing.
 
 ### Project Management
 - CRUD operations for projects (`projectController.js`).
-- Ownership checks to ensure users can only access and modify their own projects.
-- Projects can be linked to multiple tasks.
+- Strict ownership checks ensure users can only access their own projects.
+- ObjectId validation prevents malformed or malicious queries.
 
 ### Task Management
 - CRUD operations for tasks (`taskController.js`).
-- Each task is tied to a project and a user.
-- Middleware `authorizeProject.js` ensures that only project owners can manage their associated tasks.
-- Task schema supports **status management** (e.g., `pending`, `in-progress`, `completed`).
-
-### API Highlights
-- **RESTful endpoints** for users, projects, and tasks.
-- Consistent **error handling** with detailed error responses.
-- Clean separation of concerns (controllers, routes, middleware, models).
+- Each task is tied to a project and validated through ownership middleware.
+- Supports status (`pending`, `in-progress`, `completed`) and priority management.
 
 ---
 
 ## Tech Stack
 
-- **Node.js** – Backend runtime environment  
-- **Express.js** – Web application framework  
-- **MongoDB + Mongoose** – Database and ODM  
-- **bcryptjs** – Secure password hashing  
-- **jsonwebtoken (JWT)** – Authentication & authorization  
-- **express-validator** – Input validation & sanitization  
-- **Helmet** – Secure HTTP headers  
-- **CORS** – Cross-origin resource sharing  
-- **Nodemon** – Developer hot reloading  
+- **Node.js** – Backend runtime  
+- **Express.js** – Web framework  
+- **MongoDB + Mongoose** – Database + ODM  
+- **bcryptjs** – Password hashing  
+- **jsonwebtoken (JWT)** – Auth & authorization  
+- **express-validator** – Input validation  
+- **Helmet** – Secure HTTP headers + CSP  
+- **CORS** – Trusted origin configuration  
+- **express-rate-limit** – Brute-force prevention  
+- **express-mongo-sanitize** – Prevent NoSQL injection  
+- **validator** – Strong email/ID validation  
+- **sanitize-html** – Optional free-text sanitization  
+- **Nodemon** – Dev hot reload  
 
 ---
 
 ## API Endpoints
 
 ### Authentication
-- `POST /api/users/register` → Register a new user (no token generated on register).
-- `POST /api/users/login` → Authenticate user and return JWT token.
+- `POST /api/users/register` → Register new user (no token on register).  
+- `POST /api/users/login` → Authenticate user & return JWT.  
 
 ### Projects
-- `GET /api/projects` → Get all projects of the logged-in user.  
+- `GET /api/projects` → Get all projects for logged-in user.  
 - `POST /api/projects` → Create a new project.  
-- `GET /api/projects/:id` → Get a specific project by ID.  
-- `PUT /api/projects/:id` → Update a project.  
-- `DELETE /api/projects/:id` → Delete a project.
+- `GET /api/projects/:projectId` → Get a project by ID.  
+- `PUT /api/projects/:projectId` → Update a project.  
+- `DELETE /api/projects/:projectId` → Delete a project.  
 
 ### Tasks
 - `GET /api/projects/:projectId/tasks` → Get all tasks for a project.  
-- `POST /api/projects/:projectId/tasks` → Create a task under a project.  
-- `GET /api/projects/:projectId/tasks/:taskId` → Get a specific task.  
+- `POST /api/projects/:projectId/tasks` → Create a new task.  
+- `GET /api/projects/:projectId/tasks/:taskId` → Get a task by ID.  
 - `PUT /api/projects/:projectId/tasks/:taskId` → Update a task.  
-- `DELETE /api/projects/:projectId/tasks/:taskId` → Delete a task.
+- `DELETE /api/projects/:projectId/tasks/:taskId` → Delete a task.  
 
 ---
 
 ## Skills Gained
-* Backend development with Node.js & Express
-* MongoDB & Mongoose for schema design and queries
-* Secure authentication with JWT and password hashing
-* Implementing role-based ownership checks with middleware
-* Handling errors and validations in a clean, scalable way
-* Applying OWASP Top 10 security practices in backend design
-* Building and testing RESTful APIs
-
----
-
-## Notes
-* This backend is designed to integrate seamlessly with the TaskMaster Frontend (React + Vite).
-* Future improvements: role-based access control (admin, user), project collaborators, and real-time updates with WebSockets.
+- Backend architecture with Express & MongoDB  
+- Advanced authentication flows with JWT  
+- Role & ownership enforcement with middleware  
+- Clean error handling & validation patterns  
+- Applying **OWASP Top 10** to a production-ready backend  
+- Building secure REST APIs with best practices  
 
 ---
 
 ## Environment Variables
 
-The backend requires a `.env` file with the following keys:
+Create a `.env` file in the backend folder:
 
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
+JWT_SECRET=your_strong_secret_key
 NODE_ENV=development
 ```
 
-Installation
+Run backend server:
 ```bash
-# Clone repository
-git clone https://github.com/your-username/taskmaster-backend.git
-
-# Navigate into backend folder
-cd taskmaster-backend
-
-# Install dependencies
-npm install
-```
-
-Run the backend server
-```bash
-# Development mode (with nodemon)
+# Dev mode
 npm run server
 
-# Production mode
+# Production
 npm start
 ```
 
-Server will run on http://localhost:5000.
+Server will be available at http://localhost:5000
