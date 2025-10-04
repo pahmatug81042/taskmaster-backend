@@ -8,6 +8,7 @@ const {
 } = require("../controllers/projectController");
 const { protect } = require("../middleware/authMiddleware");
 const authorizeProject = require("../middleware/authorizeProject");
+const validateObjectId = require("../utils/validateObjectId");
 
 const router = express.Router();
 
@@ -20,11 +21,11 @@ router.post("/", createProject);
 // Get all projects for logged-in user
 router.get("/", getProjects);
 
-// Get, update, delete project by ID (ownership enforced by middleware)
+// Get, update, delete project by ID
 router
     .route("/:projectId")
-    .get(authorizeProject, getProjectById)
-    .put(authorizeProject, updateProject)
-    .delete(authorizeProject, deleteProject);
+    .get(validateObjectId("projectId"), authorizeProject, getProjectById)
+    .put(validateObjectId("projectId"), authorizeProject, updateProject)
+    .delete(validateObjectId("projectId"), authorizeProject, deleteProject);
 
 module.exports = router;
