@@ -1,10 +1,11 @@
 const asyncHandler = require("express-async-handler");
 const Task = require("../models/Task");
+const { isMongoId } = require("validator");
 
 /**
  * Middleware to check if the authenticated user owns the task.
- * Requires req.project to already be set (via authorizeProject middleware).
- * Attaches the task document to req.task if authorized.
+ * Requires req.project (via authorizeProject).
+ * Validates taskId format and attaches the task doc if authorized.
  */
 const authorizeTask = asyncHandler(async (req, res, next) => {
     const { taskId } = req.params;
@@ -12,6 +13,12 @@ const authorizeTask = asyncHandler(async (req, res, next) => {
     if (!req.project) {
         res.status(400);
         throw new Error("Project context missing for task authorization");
+    }
+
+    // Validate taskId format
+    if (!taskId || !isMongoId(taskId)) {
+        res.status(400);
+        throw new Error("Invalid taskId format");
     }
 
     // Find the task by ID and ensure it belongs to the project
@@ -22,7 +29,7 @@ const authorizeTask = asyncHandler(async (req, res, next) => {
         throw new Error("Task not found or not authorized");
     }
 
-    // Attach task to request for downstream controllers
+    // Attach task to request
     req.task = task;
 
     next();
