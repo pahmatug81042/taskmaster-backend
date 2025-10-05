@@ -6,6 +6,9 @@ It provides a **secure REST API** for managing users, projects, and tasks, built
 The backend strictly follows **OWASP Top 10 (2024) security principles**, ensuring protection against vulnerabilities like XSS, injection, broken authentication, sensitive data exposure, and insecure deserialization.
 
 ---
+## Link to Frontend GitHub Repository
+https://github.com/pahmatug81042/taskmaster-frontend
+---
 
 ## Security Features
 
