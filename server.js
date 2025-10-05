@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const helmet = require("helmet");
+const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
 const rateLimit = require("express-rate-limit");
 const connectDB = require("./config/db");
@@ -12,7 +13,7 @@ connectDB();
 
 const app = express();
 
-// Security Headers with Helmet
+// Helmet security headers
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -27,15 +28,18 @@ app.use(
     })
 );
 
-// CORS
+// CORS setup
 app.use(
     cors({
-        origin: "http://localhost:5173", // update for production
-        credentials: true,
+        origin: "http://localhost:5173",
+        credentials: true, // allows cookies
     })
 );
 
-// Body parser + enforce JSON Content-Type
+// Cookie parser for reading httpOnly cookies
+app.use(cookieParser());
+
+// Enforce JSON for non-GET requests
 app.use((req, res, next) => {
     if (req.method !== "GET" && req.headers["content-type"] !== "application/json") {
         return res.status(415).json({ message: "Content-Type must be application/json" });
@@ -47,9 +51,9 @@ app.use(express.json());
 // Prevent NoSQL injection
 app.use(mongoSanitize());
 
-// Rate limiters for auth endpoints
+// Auth route rate limiting
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000,
     max: 10,
     message: "Too many login/register attempts. Please try again later.",
 });
@@ -66,6 +70,4 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
