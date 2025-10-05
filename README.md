@@ -1,9 +1,9 @@
 # TaskMaster Backend (MERN Stack)
 
-This is the **backend service** for the **TaskMaster** application, developed during **Temple University OwlHacks 2025**.  
+This is the **backend service** for the **TaskMaster** application.  
 It provides a **secure REST API** for managing users, projects, and tasks, built with **Node.js, Express, and MongoDB**.
 
-The backend strictly adheres to **OWASP Top 10 (2024) security principles**, ensuring protection against common vulnerabilities like XSS, injection, broken authentication, sensitive data exposure, and insecure deserialization.
+The backend strictly follows **OWASP Top 10 (2024) security principles**, ensuring protection against vulnerabilities like XSS, injection, broken authentication, sensitive data exposure, and insecure deserialization.
 
 ---
 
@@ -12,50 +12,50 @@ The backend strictly adheres to **OWASP Top 10 (2024) security principles**, ens
 ### Authentication & Session Security
 - User registration and login with **bcrypt password hashing**.
 - **JWT-based authentication** with short-lived access tokens (`1h`) and strong secrets.
-- Tokens validated in `authMiddleware.js` before protected resources are accessed.
-- Ownership enforced with `authorizeProject.js` and `authorizeTask.js`.
+- Tokens validated in `authMiddleware.js` before accessing protected routes.
+- Ownership enforcement through `authorizeProject.js` and `authorizeTask.js`.
 
 ### Input Validation & Sanitization
 - Global enforcement of `Content-Type: application/json`.
 - `express-mongo-sanitize` prevents MongoDB operator injection (`$gt`, `$set`, etc.).
-- `validator` ensures proper email format, username constraints, and ID validation.
-- `sanitize-html` used for sanitizing free-text fields if/when enabled.
-- Centralized request validation with `validationMiddleware.js`.
+- `validator` ensures valid email formats, usernames, and ObjectId validation.
+- `sanitize-html` used to sanitize free-text fields (if enabled).
+- Centralized request validation handled via `validationMiddleware.js`.
 
 ### Security Middleware
-- **Helmet** with strict Content Security Policy (CSP) headers.
-- **CORS policy** restricted to trusted frontend origin(s).
-- **express-rate-limit** applied to authentication endpoints (`/api/users/login` and `/api/users/register`) to mitigate brute-force attacks.
+- **Helmet** configured with a strict Content Security Policy (CSP).
+- **CORS policy** limited to trusted frontend origin(s).
+- **express-rate-limit** applied to `/api/users/login` and `/api/users/register` routes to mitigate brute-force attacks.
 
 ### Error Handling
 - Centralized `errorMiddleware.js`:
-  - Sanitizes error messages in production (no stack leaks).
-  - Normalizes common errors (invalid ObjectId, duplicate keys, validation errors).
+  - Sanitizes error messages in production (no stack traces leaked).
+  - Handles invalid ObjectIds, duplicate keys, and validation errors.
   - Returns consistent JSON error format.
-- `notFound` handler for unknown routes.
+- `notFound` middleware for unrecognized routes.
 
 ### ID Validation & Ownership
 - `validateObjectId.js` utility ensures only valid MongoDB ObjectIds are processed.
-- Validation enforced **both at the route level and middleware level** (inside `authorizeProject` and `authorizeTask`) for defense-in-depth.
+- Validation enforced at both **route** and **middleware** levels for defense-in-depth.
 
 ---
 
-## Features
+## Core Features
 
 ### User Management
-- Register new users with input validation.
-- Login returns JWT token for authentication.
-- Passwords stored securely with salted bcrypt hashing.
+- Register and log in users with validation.
+- Login returns JWT for authentication.
+- Passwords stored securely using salted bcrypt hashing.
 
 ### Project Management
 - CRUD operations for projects (`projectController.js`).
-- Strict ownership checks ensure users can only access their own projects.
+- Ownership checks ensure users access only their own data.
 - ObjectId validation prevents malformed or malicious queries.
 
 ### Task Management
 - CRUD operations for tasks (`taskController.js`).
-- Each task is tied to a project and validated through ownership middleware.
-- Supports status (`pending`, `in-progress`, `completed`) and priority management.
+- Tasks are linked to projects and validated for ownership.
+- Support for task status (`pending`, `in-progress`, `completed`) and priorities.
 
 ---
 
@@ -65,47 +65,47 @@ The backend strictly adheres to **OWASP Top 10 (2024) security principles**, ens
 - **Express.js** – Web framework  
 - **MongoDB + Mongoose** – Database + ODM  
 - **bcryptjs** – Password hashing  
-- **jsonwebtoken (JWT)** – Auth & authorization  
+- **jsonwebtoken (JWT)** – Authentication & authorization  
 - **express-validator** – Input validation  
 - **Helmet** – Secure HTTP headers + CSP  
-- **CORS** – Trusted origin configuration  
-- **express-rate-limit** – Brute-force prevention  
+- **CORS** – Trusted origin enforcement  
+- **express-rate-limit** – Brute-force protection  
 - **express-mongo-sanitize** – Prevent NoSQL injection  
-- **validator** – Strong email/ID validation  
-- **sanitize-html** – Optional free-text sanitization  
-- **Nodemon** – Dev hot reload  
+- **validator** – Strong email and ID validation  
+- **sanitize-html** – Optional HTML sanitization  
+- **Nodemon** – Development hot reload  
 
 ---
 
 ## API Endpoints
 
 ### Authentication
-- `POST /api/users/register` → Register new user (no token on register).  
+- `POST /api/users/register` → Register new user.  
 - `POST /api/users/login` → Authenticate user & return JWT.  
 
 ### Projects
-- `GET /api/projects` → Get all projects for logged-in user.  
+- `GET /api/projects` → Retrieve all projects for the logged-in user.  
 - `POST /api/projects` → Create a new project.  
-- `GET /api/projects/:projectId` → Get a project by ID.  
-- `PUT /api/projects/:projectId` → Update a project.  
+- `GET /api/projects/:projectId` → Retrieve a single project.  
+- `PUT /api/projects/:projectId` → Update an existing project.  
 - `DELETE /api/projects/:projectId` → Delete a project.  
 
 ### Tasks
-- `GET /api/projects/:projectId/tasks` → Get all tasks for a project.  
-- `POST /api/projects/:projectId/tasks` → Create a new task.  
-- `GET /api/projects/:projectId/tasks/:taskId` → Get a task by ID.  
+- `GET /api/projects/:projectId/tasks` → Retrieve all tasks for a project.  
+- `POST /api/projects/:projectId/tasks` → Create a task under a project.  
+- `GET /api/projects/:projectId/tasks/:taskId` → Retrieve a specific task.  
 - `PUT /api/projects/:projectId/tasks/:taskId` → Update a task.  
 - `DELETE /api/projects/:projectId/tasks/:taskId` → Delete a task.  
 
 ---
 
-## Skills Gained
-- Backend architecture with Express & MongoDB  
-- Advanced authentication flows with JWT  
-- Role & ownership enforcement with middleware  
-- Clean error handling & validation patterns  
-- Applying **OWASP Top 10** to a production-ready backend  
-- Building secure REST APIs with best practices  
+## Skills Demonstrated
+- Scalable backend architecture with Express & MongoDB  
+- JWT authentication & secure session management  
+- Middleware-driven validation and ownership control  
+- Comprehensive error handling with security hardening  
+- Implementation of **OWASP Top 10** security practices  
+- Building production-ready REST APIs  
 
 ---
 
@@ -122,11 +122,11 @@ NODE_ENV=development
 
 Run backend server:
 ```bash
-# Dev mode
+# Development
 npm run server
 
 # Production
 npm start
 ```
 
-Server will be available at http://localhost:5000
+Server will be available at: http://localhost:5000
