@@ -98,6 +98,37 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Get current authenticated user (via JWT cookie)
+ * @route   GET /api/users/me
+ * @access  Private
+ */
+const getCurrentUser = asyncHandler(async (req, res) => {
+    const token = req.cookies?.jwt;
+
+    if (!token) {
+        return res.status(401).json({ message: "Not authorized, no token" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id).select("-password");
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+        });
+    } catch (error) {
+        console.error("Error verifying token:", error);
+        res.status(401).json({ message: "Not authorized, invalid token" });
+    }
+});
+
+/**
  * @desc    Logout user and clear cookie
  * @route   POST /api/users/logout
  * @access  Private
@@ -111,4 +142,4 @@ const logoutUser = asyncHandler(async (req, res) => {
     res.json({ message: "Logged out successfully" });
 });
 
-module.exports = { registerUser, loginUser, logoutUser };
+module.exports = { registerUser, loginUser, getCurrentUser, logoutUser };
