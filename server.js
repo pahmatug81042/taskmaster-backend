@@ -13,7 +13,11 @@ connectDB();
 
 const app = express();
 
-// Helmet security headers
+// ---------------------------
+// Security Middleware Setup
+// ---------------------------
+
+// Helmet for secure HTTP headers
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -28,46 +32,76 @@ app.use(
     })
 );
 
-// CORS setup
+// CORS: restrict origins and allow credentials (cookies/JWT)
 app.use(
     cors({
         origin: "http://localhost:5173",
-        credentials: true, // allows cookies
+        credentials: true,
     })
 );
 
-// Cookie parser for reading httpOnly cookies
+// Parse cookies securely
 app.use(cookieParser());
 
-// Enforce JSON for non-GET requests
+// Enforce JSON content for POST/PUT/PATCH/DELETE
 app.use((req, res, next) => {
-    if (req.method !== "GET" && req.headers["content-type"] !== "application/json") {
-        return res.status(415).json({ message: "Content-Type must be application/json" });
+    if (
+        req.method !== "GET" &&
+        req.headers["content-type"] !== "application/json"
+    ) {
+        return res
+            .status(415)
+            .json({ message: "Content-Type must be application/json" });
     }
     next();
 });
+
+// Parse incoming JSON bodies
 app.use(express.json());
 
-// Prevent NoSQL injection
-app.use(mongoSanitize());
+// -----------------------------------------
+// Prevent NoSQL Injection (Express 5 Safe)
+// -----------------------------------------
+app.use((req, res, next) => {
+    try {
+        // Sanitize mutable input sources only (req.body, params, headers)
+        if (req.body) mongoSanitize.sanitize(req.body);
+        if (req.params) mongoSanitize.sanitize(req.params);
+        if (req.headers) mongoSanitize.sanitize(req.headers);
+        // Skip req.query to avoid immutable error in Express 5
+        next();
+    } catch (err) {
+        console.error("Mongo Sanitize Error:", err);
+        next(err);
+    }
+});
 
-// Auth route rate limiting
+// ----------------------------------
+// Rate Limiting (Auth endpoints)
+// ----------------------------------
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 10,
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // limit each IP to 10 login/register attempts
     message: "Too many login/register attempts. Please try again later.",
 });
 app.use("/api/users/login", authLimiter);
 app.use("/api/users/register", authLimiter);
 
-// Routes
+// ---------------------------
+// API Routes
+// ---------------------------
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/projects", require("./routes/projectRoutes"));
 app.use("/api/projects/:projectId/tasks", require("./routes/taskRoutes"));
 
-// Error Handling
+// ---------------------------
+// Error Handling Middleware
+// ---------------------------
 app.use(notFound);
 app.use(errorHandler);
 
+// ---------------------------
+// Server Initialization
+// ---------------------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
