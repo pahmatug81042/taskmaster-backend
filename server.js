@@ -43,10 +43,10 @@ app.use(
 // Parse cookies securely
 app.use(cookieParser());
 
-// Enforce JSON content for POST/PUT/PATCH/DELETE
+// Enforce JSON content for POST/PUT/PATCH only, allow DELETE without body
 app.use((req, res, next) => {
     if (
-        req.method !== "GET" &&
+        ["POST", "PUT", "PATCH"].includes(req.method) && // only these methods
         req.headers["content-type"] !== "application/json"
     ) {
         return res
