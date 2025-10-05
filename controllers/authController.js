@@ -5,17 +5,21 @@ const validator = require("validator");
 const sanitizeHtml = require("sanitize-html");
 require("dotenv").config();
 
+/**
+ * Generate JWT token (15-minute expiry)
+ */
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "15m" }); // short-lived
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "15m" });
 };
 
-// @desc    Register new user
-// @route   POST /api/users/register
-// @access  Public
+/**
+ * @desc    Register new user
+ * @route   POST /api/users/register
+ * @access  Public
+ */
 const registerUser = asyncHandler(async (req, res) => {
     let { username, email, password } = req.body;
 
-    // Basic santization
     if (!username || !email || !password) {
         res.status(400);
         throw new Error("Please provide username, email, and password");
@@ -54,9 +58,11 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 });
 
-// @desc    Authenticate user & get token
-// @route   POST /api/users/login
-// @access  Public
+/**
+ * @desc    Login user and set HttpOnly cookie
+ * @route   POST /api/users/login
+ * @access  Public
+ */
 const loginUser = asyncHandler(async (req, res) => {
     let { email, password } = req.body;
 
@@ -69,11 +75,21 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ email });
     if (user && (await user.matchPassword(password))) {
+        const token = generateToken(user._id);
+
+        // Set secure cookie
+        res.cookie("jwt", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+
         res.json({
             _id: user._id,
             username: user.username,
             email: user.email,
-            token: generateToken(user._id),
+            message: "Login successful",
         });
     } else {
         res.status(401);
@@ -81,4 +97,18 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { registerUser, loginUser };
+/**
+ * @desc    Logout user and clear cookie
+ * @route   POST /api/users/logout
+ * @access  Private
+ */
+const logoutUser = asyncHandler(async (req, res) => {
+    res.clearCookie("jwt", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+    res.json({ message: "Logged out successfully" });
+});
+
+module.exports = { registerUser, loginUser, logoutUser };
